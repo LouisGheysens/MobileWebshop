@@ -9,6 +9,7 @@ import MyErrorText from '../components/MyErrorText'
 import { handleSignIn } from '../services/FirebaseService';
 import firebase from 'react-native-firebase';
 import Toast from 'react-native-toast-message';
+import RNFirebase from 'react-native-firebase'
 
 const loginValidationSchema = yup.object().shape({
   email: yup.string().email('Please enter valid email').required('Email adress is required!'),
@@ -20,9 +21,10 @@ const loginValidationSchema = yup.object().shape({
 
 const LoginScreen = ({ navigation }) => {
 
-
+  //Password
   const [showPassword, setShowPassword] = React.useState(false)
-  
+
+  //UseRefs
   const emailInputRef = useRef(null);
   const passWordInputRef = useRef(null);
 
@@ -34,7 +36,7 @@ const LoginScreen = ({ navigation }) => {
       try{
         await handleSignIn(email, password);
         Toast.show({type: 'succes',text1: 'Login succesvol!',})
-
+        navigation.navigate('HomeScreen');
       }catch(error){
         console.error(error);
       }
@@ -57,7 +59,7 @@ const LoginScreen = ({ navigation }) => {
     
       <Text style={styles.pageHeader}>Login</Text>
 
-      <Image style={styles.imageStyle} source={require('../../assets/shopApp.PNG')}/>
+      {/* <Image style={styles.imageStyle} source={require('../../assets/favicon.PNG')}/> */}
 
       //Email
       <TextInput style={styles.inputStyle} 

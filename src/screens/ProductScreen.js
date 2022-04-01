@@ -1,13 +1,23 @@
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { ScrollView } from 'react-native-gesture-handler'
+import { FlatList, ScrollView } from 'react-native-gesture-handler'
 
-const ProductScreen = () => {
+const ProductScreen = ({ props }) => {
+
+  // READ DATA FROM FIREBASE IN FLATLIST
   return (
     <SafeAreaView>
+
+    <Text>name product....</Text>
+
+
     <ScrollView>
     //Products with scroll functionality
-    <Text>ProductScreen</Text>
+    <FlatList
+    //Products with name + image
+    //Image left side + name center 
+    //Onpress on item to navigate to DetailScreen
+    />
     </ScrollView>
     </SafeAreaView>
   )

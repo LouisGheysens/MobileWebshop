@@ -1,13 +1,24 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import LoginScreen from './src/screens/LoginScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import firebase from 'react-native-firebase';
+import Toast from 'react-native-toast-message';
+import RNFirebase from 'react-native-firebase'
+
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+  const [user, setUser] = React.useState();
+
+  React.useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      setUser(user);
+    });
+  }, []);
+
+  const User = firebase.auth().currentUser;
+  return <View>{User ? <HomeScreen /> : <LoginScreen />}</View>;
 }
 
 const styles = StyleSheet.create({
