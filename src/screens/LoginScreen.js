@@ -6,9 +6,12 @@ import { Form, Formik } from 'formik';
 import { TextInput } from 'react-native-gesture-handler';
 import * as yup from 'yup';
 import MyErrorText from '../components/MyErrorText'
+import { handleSignIn } from '../services/FirebaseService';
+import firebase from 'react-native-firebase';
+import Toast from 'react-native-toast-message';
 
 const loginValidationSchema = yup.object().shape({
-  email: yup.string().email('Please enter valid email').required('Email adress is require!'),
+  email: yup.string().email('Please enter valid email').required('Email adress is required!'),
   password: yup.string().min(4, ({ min }) => `Password must be at least ${min} characters!`)
   .required('Password is required!').matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d$@$!%*?&]).*$/,
@@ -17,28 +20,42 @@ const loginValidationSchema = yup.object().shape({
 
 const LoginScreen = ({ navigation }) => {
 
-  //Show / Hide password
-  const [showPassword, setShowPassword] = React.useState(false)
 
-    const emailInputRef = useRef(null);
-    const passWordInputRef = useRef(null);
+  const [showPassword, setShowPassword] = React.useState(false)
+  
+  const emailInputRef = useRef(null);
+  const passWordInputRef = useRef(null);
+
+  const handleSignInClick = async () => {
+    if(email === "" || password === ""){
+      console.error("Invalid credentials!");
+      Toast.show({type: 'error',text1: 'Gelieve de velden correct in te vullen!',})
+    }else{
+      try{
+        await handleSignIn(email, password);
+        Toast.show({type: 'succes',text1: 'Login succesvol!',})
+
+      }catch(error){
+        console.error(error);
+      }
+    }
+  };
 
   return (
-
     <Formik
     initialValues={{ email: '', password: ''}}
     validateOnMount={true}
     onSubmit={values => {
-    // Call login Service here from firebase! Here we can pass the values!
+    handleSignIn(values);
     }}
     validationSchema={loginValidationSchema}
     >
 
-    {({handleChange, handleBlur, handleSubmit, values, touched, errors, isValid}) => (
+    {({handleChange, handleBlur, values, touched, errors}) => (
 
     <View style={styles.container}>
     
-      <Text style={styles.pageHeader}>LoginScreen</Text>
+      <Text style={styles.pageHeader}>Login</Text>
 
       <Image style={styles.imageStyle} source={require('../../assets/shopApp.PNG')}/>
 
@@ -48,6 +65,7 @@ const LoginScreen = ({ navigation }) => {
       onChangeText={handleChange('email')}
       onBlur={handleBlur('email')}
       ref={emailInputRef}
+      autoCorrect={false}
       />
 
       <Icon name={!errors.email ? 'checkmark' : 'close'} style={{ color: !errors.email ? '#4632A1' : 'red'}} />
@@ -57,8 +75,6 @@ const LoginScreen = ({ navigation }) => {
       <MyErrorText>{errors.email}</MyErrorText>}
 
 
-
-
       //Password
       <TextInput style={styles.inputStyle} 
       value={values.password}
@@ -66,6 +82,7 @@ const LoginScreen = ({ navigation }) => {
       onBlur={handleBlur('password')}
       ref={passWordInputRef}
       secureTextEntry={!showPassword} 
+      autoCorrect={false}
       />
 
       <Icon name={showPassword ? 'eye-off' : 'eye'} style={{ color: '#4632A1'}} onPress={() => setShowPassword(!showPassword)} />
@@ -74,9 +91,7 @@ const LoginScreen = ({ navigation }) => {
       {(errors.password && touched.password) &&
       <MyErrorText>{errors.password}</MyErrorText>}
 
-      <MyButton onPress={handleSubmit} Text="submit"  />
-
-
+      <MyButton onPress={handleSignInClick} Text="submit"  />
 
     </View>
 
