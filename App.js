@@ -5,6 +5,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import firebase from 'react-native-firebase';
 import Toast from 'react-native-toast-message';
 import RNFirebase from 'react-native-firebase'
+import ProductTabNavigator from './src/navigation/ProductTabNavigator'
 
 
 export default function App() {
@@ -18,7 +19,15 @@ export default function App() {
   }, []);
 
   const User = firebase.auth().currentUser;
-  return <View>{User ? <HomeScreen /> : <LoginScreen />}</View>;
+  return <View>{User ? <HomeScreen /> : <LoginScreen />}
+   <Provider store={store}>
+      <PersistGate persistor={persistor}>
+        <NavigationContainer>
+          <ProductTabNavigator />
+        </NavigationContainer>
+      </PersistGate>
+    </Provider>;
+    </View>
 }
 
 const styles = StyleSheet.create({
