@@ -10,24 +10,14 @@ import ProductTabNavigator from './src/navigation/ProductTabNavigator'
 
 export default function App() {
 
-  const [user, setUser] = React.useState();
-
-  React.useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      setUser(user);
-    });
-  }, []);
-
-  const User = firebase.auth().currentUser;
-  return <View>{User ? <HomeScreen /> : <LoginScreen />}
-   <Provider store={store}>
-      <PersistGate persistor={persistor}>
-        <NavigationContainer>
-          <ProductTabNavigator />
-        </NavigationContainer>
-      </PersistGate>
-    </Provider>;
-    </View>
+  return (
+    <NavigationContainer>
+    <Stack.Navigator>
+      <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+    </Stack.Navigator>
+  </NavigationContainer>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -24,6 +24,10 @@ const FeedbackScreen = () => {
   const messageInputRef = useRef(null);
   const ratingRef = useRef(null);
 
+  const handleClick = () =>{
+
+  }
+
   return (
     <Formik
     initialValues={{ message: '', select: '', rating: '', date: Date.now(), wouldRecommend: false}}
@@ -70,7 +74,10 @@ const FeedbackScreen = () => {
       style={styles.checkbox}
       />
 
-      <MyButton>Bevestig</MyButton>      
+      
+      <MyButton
+      onPress={handleClick}
+      >Bevestig</MyButton>      
 
     </View>
 

@@ -1,104 +1,100 @@
-import { Dimensions, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { Dimensions, KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native'
+import React, { useState } from 'react'
 import { Button, Icon, Input } from 'react-native-elements'
 import MyButton from '../components/MyButton';
 import { Form, Formik } from 'formik';
-import { TextInput } from 'react-native-gesture-handler';
+import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import * as yup from 'yup';
 import MyErrorText from '../components/MyErrorText'
 import { handleSignIn } from '../services/FirebaseService';
-import firebase from 'react-native-firebase';
 import Toast from 'react-native-toast-message';
-import RNFirebase from 'react-native-firebase'
+import { auth } from '../services/Firebase';
+import { useNavigation } from '@react-navigation/native';
 
-const loginValidationSchema = yup.object().shape({
-  email: yup.string().email('Please enter valid email').required('Email adress is required!'),
-  password: yup.string().min(4, ({ min }) => `Password must be at least ${min} characters!`)
-  .required('Password is required!').matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d$@$!%*?&]).*$/,
-  )
-})
+const LoginScreen = () => {
 
-const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const navigation = useNavigation()
 
-  //Password
-  const [showPassword, setShowPassword] = React.useState(false)
 
-  //UseRefs
-  const emailInputRef = useRef(null);
-  const passWordInputRef = useRef(null);
-
-  const handleSignInClick = async () => {
-    if(email === "" || password === ""){
-      console.error("Invalid credentials!");
-      Toast.show({type: 'error',text1: 'Gelieve de velden correct in te vullen!',})
-    }else{
-      try{
-        await handleSignIn(email, password);
-        Toast.show({type: 'succes',text1: 'Login succesvol!',})
-        navigation.navigate('HomeScreen');
-      }catch(error){
-        console.error(error);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if(user) {
+        navigation.replace("Home")
       }
-    }
-  };
+    })
+
+    return unsubscribe
+  }, []);
+
+  const handleSignUp = () => {
+    auth
+    .createUserWithEmailAndPassword(email, password)
+    .then(userCredentials => {
+      const user = userCredentials.user;
+      console.log('Registered with:', user.email);
+    })
+    .catch(error => alert(error.message));
+  }
+
+  const handleLogin = () => {
+    auth
+    .signInWithEmailAndPassword(email, password)
+    .then(userCredentials => {
+      const user = userCredentials.user;
+      console.log('Logged in with:', user.email);
+    })
+    .catch(error => alert(error.message));
+  }
 
   return (
-    <Formik
-    initialValues={{ email: '', password: ''}}
-    validateOnMount={true}
-    onSubmit={values => {
-    handleSignIn(values);
-    }}
-    validationSchema={loginValidationSchema}
+    <KeyboardAvoidingView style={styles.container}
+    behavior="padding"
     >
 
-    {({handleChange, handleBlur, values, touched, errors}) => (
 
-    <View style={styles.container}>
-    
-      <Text style={styles.pageHeader}>Login</Text>
-
-      {/* <Image style={styles.imageStyle} source={require('../../assets/favicon.PNG')}/> */}
-
-      //Email
-      <TextInput style={styles.inputStyle} 
-      value={values.email}
-      onChangeText={handleChange('email')}
-      onBlur={handleBlur('email')}
-      ref={emailInputRef}
-      autoCorrect={false}
+    //Email
+    <View style={styles.inputContainer}>
+      <TextInput
+      placeholder='Email'
+      value={email}
+      onChangeText={text => setEmail(text)}
+      style={styles.input}
       />
 
-      <Icon name={!errors.email ? 'checkmark' : 'close'} style={{ color: !errors.email ? '#4632A1' : 'red'}} />
-
-      //Handle input email
-      {(errors.email && touched.email) &&
-      <MyErrorText>{errors.email}</MyErrorText>}
-
-
-      //Password
-      <TextInput style={styles.inputStyle} 
-      value={values.password}
-      onChangeText={handleChange('password')}
-      onBlur={handleBlur('password')}
-      ref={passWordInputRef}
-      secureTextEntry={!showPassword} 
-      autoCorrect={false}
+      /Password
+      <TextInput
+      placeholder='Password'
+      value={password}
+      onChangeText={text => setPassword(text)}
+      style={styles.input}
+      secureTextEntry
       />
-
-      <Icon name={showPassword ? 'eye-off' : 'eye'} style={{ color: '#4632A1'}} onPress={() => setShowPassword(!showPassword)} />
-
-      //Handle input password
-      {(errors.password && touched.password) &&
-      <MyErrorText>{errors.password}</MyErrorText>}
-
-      <MyButton onPress={handleSignInClick} Text="submit"  />
-
     </View>
 
-    )}
-    </Formik>
+
+
+    //Login
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity
+      onPress={handleLogin}
+      style={styles.button}
+      >
+      <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+
+
+      //Registreer
+      <TouchableOpacity
+      onPress={handleSignUp}
+      style={[styles.button, styles.buttonOutline]}
+      >
+      <Text style={styles.buttonOutlineText}>Registreer</Text>
+      </TouchableOpacity>
+
+    </View>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -107,17 +103,48 @@ export default LoginScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    pageHeader: {
-        fontWeight: 'bold',
-        fontSize: 34,
+    inputContainer: {
+      width: '80%',
     },
-    inputStyle: {
-        height: 40,
-        margin: 12,
-        borderWidth: 1,
-        padding: 10,
+    input: {
+      backgroundColor: 'white',
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderRadius: 10,
+      marginTop: 5
     },
+    buttonContainer: {
+      width: '60%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 40,
+    },
+    button: {
+      backgroundColor: '#0782F9',
+      width: '100%',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    buttonOutline: {
+      backgroundColor: 'white',
+      marginTop: 5,
+      borderColor: '#0782F9',
+      borderWidth: 2,
+    },
+    buttonText: {
+      color: 'white',
+      fontWeight: 700,
+      fontSize: '16'
+    },
+  buttonOutlineText: {
+    color: '#0782F9',
+    fontWeight: 700,
+    fontSize: 16,
+  },
     imageStyle:{
         resizeMode: "contain",
         height: Dimensions.get('window').height / 2.5,
