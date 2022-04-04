@@ -1,14 +1,8 @@
 import { Dimensions, KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import { Button, Icon, Input } from 'react-native-elements'
-import MyButton from '../components/MyButton';
-import { Form, Formik } from 'formik';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import * as yup from 'yup';
-import MyErrorText from '../components/MyErrorText'
-import { handleSignIn } from '../services/FirebaseService';
-import Toast from 'react-native-toast-message';
 import { auth } from '../services/Firebase';
+import RNFirebase from 'react-native-firebase'
 import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {

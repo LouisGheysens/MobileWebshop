@@ -1,24 +1,37 @@
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FlatList, ScrollView } from 'react-native-gesture-handler'
 import { v4 as uuidv4 } from "uuid";
 import { useDispatch } from "react-redux";
+import { useField } from 'formik';
+import firestore from '@react-native-firebase/firestore'
+import { db } from '../services/Firebase';
 
 
 const ProductScreen = ({ navigation }) => {
 
-  const dispatch = useDispatch();
+  const[data, setData] = useState([]);
 
-  // READ DATA FROM FIREBASE IN FLATLIST
+
+  //Read products data from Firebase database
+  const fetchData = async () =>{
+    const response = db.collection('products');
+    const data = await response.get();
+    data.docs.forEach(item => {
+      setData([...data,item.data])
+    })
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [])
+
   return (
     <SafeAreaView>
     <ScrollView>
     //Products with scroll functionality
     <FlatList
-    //Products with name + image
-    //Image left side + name center 
-    //Onpress on item to navigate to DetailScreen
-    data={products}
+    data={data.products}
     keyExtractor={(x) => x.name}    renderItem={({x, index}) => (
       <Pressable
       onPress={() => 
