@@ -29,7 +29,6 @@ const ProductScreen = ({ navigation }) => {
   return (
     <SafeAreaView>
     <ScrollView>
-    //Products with scroll functionality
     <FlatList
     data={data.products}
     keyExtractor={(x) => x.name}    renderItem={({x, index}) => (
